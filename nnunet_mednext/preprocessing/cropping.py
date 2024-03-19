@@ -21,6 +21,7 @@ from collections import OrderedDict
 
 
 def create_nonzero_mask(data):
+    print('create non zero mask')
     from scipy.ndimage import binary_fill_holes
     assert len(data.shape) == 4 or len(data.shape) == 3, "data must have shape (C, X, Y, Z) or shape (C, X, Y)"
     nonzero_mask = np.zeros(data.shape[1:], dtype=bool)
@@ -32,17 +33,21 @@ def create_nonzero_mask(data):
 
 
 def get_bbox_from_mask(mask, outside_value=0):
+    print('get bbox from mask')
     mask_voxel_coords = np.where(mask != outside_value)
+    
     minzidx = int(np.min(mask_voxel_coords[0]))
     maxzidx = int(np.max(mask_voxel_coords[0])) + 1
     minxidx = int(np.min(mask_voxel_coords[1]))
     maxxidx = int(np.max(mask_voxel_coords[1])) + 1
     minyidx = int(np.min(mask_voxel_coords[2]))
     maxyidx = int(np.max(mask_voxel_coords[2])) + 1
+    print('mask coords: ------ ',[[minzidx, maxzidx], [minxidx, maxxidx], [minyidx, maxyidx]])
     return [[minzidx, maxzidx], [minxidx, maxxidx], [minyidx, maxyidx]]
 
 
 def crop_to_bbox(image, bbox):
+    print('crop to bbox')
     assert len(image.shape) == 3, "only supports 3d images"
     resizer = (slice(bbox[0][0], bbox[0][1]), slice(bbox[1][0], bbox[1][1]), slice(bbox[2][0], bbox[2][1]))
     return image[resizer]
@@ -54,11 +59,13 @@ def get_case_identifier(case):
 
 
 def get_case_identifier_from_npz(case):
+    print('++ GET CASE IDENT NPZ: CROPPING SLASH')
     case_identifier = case.split("/")[-1][:-4]
     return case_identifier
 
 
 def load_case_from_list_of_files(data_files, seg_file=None):
+    print('load case from list of files')
     assert isinstance(data_files, list) or isinstance(data_files, tuple), "case must be either a list or a tuple"
     properties = OrderedDict()
     data_itk = [sitk.ReadImage(f) for f in data_files]
@@ -89,9 +96,10 @@ def crop_to_nonzero(data, seg=None, nonzero_label=-1):
     :param nonzero_label: this will be written into the segmentation map
     :return:
     """
+    # print('crop to nonzero')
     nonzero_mask = create_nonzero_mask(data)
     bbox = get_bbox_from_mask(nonzero_mask, 0)
-
+    # print('bbox shape: ', bbox.shape)
     cropped_data = []
     for c in range(data.shape[0]):
         cropped = crop_to_bbox(data[c], bbox)
@@ -137,6 +145,7 @@ class ImageCropper(object):
 
     @staticmethod
     def crop(data, properties, seg=None):
+        print('crop')
         shape_before = data.shape
         data, seg, bbox = crop_to_nonzero(data, seg, nonzero_label=-1)
         shape_after = data.shape
@@ -151,10 +160,12 @@ class ImageCropper(object):
 
     @staticmethod
     def crop_from_list_of_files(data_files, seg_file=None):
+        print('crop from list of files')
         data, seg, properties = load_case_from_list_of_files(data_files, seg_file)
         return ImageCropper.crop(data, properties, seg)
 
     def load_crop_save(self, case, case_identifier, overwrite_existing=False):
+        print('load crop save')
         try:
             print(case_identifier)
             if overwrite_existing \
@@ -173,6 +184,7 @@ class ImageCropper(object):
             raise e
 
     def get_list_of_cropped_files(self):
+        print('get list of cropped files')
         return subfiles(self.output_folder, join=True, suffix=".npz")
 
     def get_patient_identifiers_from_cropped_files(self):
@@ -187,6 +199,7 @@ class ImageCropper(object):
         :param output_folder:
         :return:
         """
+        print('run cropping')
         if output_folder is not None:
             self.output_folder = output_folder
 

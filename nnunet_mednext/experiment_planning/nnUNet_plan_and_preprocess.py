@@ -111,18 +111,18 @@ def main():
     search_in = join(nnunet_mednext.__path__[0], "experiment_planning")
 
     if planner_name3d is not None:
-        planner_3d = recursive_find_python_class([search_in], planner_name3d, current_module="nnunet.experiment_planning")
+        planner_3d = recursive_find_python_class([search_in], planner_name3d, current_module="nnunet_mednext.experiment_planning")
         if planner_3d is None:
             raise RuntimeError("Could not find the Planner class %s. Make sure it is located somewhere in "
-                               "nnunet.experiment_planning" % planner_name3d)
+                               "nnunet_mednext.experiment_planning" % planner_name3d)
     else:
         planner_3d = None
 
     if planner_name2d is not None:
-        planner_2d = recursive_find_python_class([search_in], planner_name2d, current_module="nnunet.experiment_planning")
+        planner_2d = recursive_find_python_class([search_in], planner_name2d, current_module="nnunet_mednext.experiment_planning")
         if planner_2d is None:
             raise RuntimeError("Could not find the Planner class %s. Make sure it is located somewhere in "
-                               "nnunet.experiment_planning" % planner_name2d)
+                               "nnunet_mednext.experiment_planning" % planner_name2d)
     else:
         planner_2d = None
 
